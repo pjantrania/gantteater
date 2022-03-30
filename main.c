@@ -2,12 +2,22 @@
 #include <stdlib.h>
 #include <time.h>
 
+#define BLOCK_WIDTH 7
 
 struct Task {
   char* title;
   time_t start_date;
   time_t end_date;
 };
+
+time_t parseDate(char* yyyyMmDdDate) {
+  char month[2];
+  char day[2];
+  char year[4];
+  sscanf(yyyyMmDdDate, "%[^-]-%[^-]-%s", year, month, day);
+  printf("year: %s, month: %s, day: %s\n", year, month, day);
+  return 0;
+}
 
 int getDateDifference(time_t laterDate, time_t earlierDate) {
   time_t d = (time_t)difftime(laterDate, earlierDate);
@@ -17,29 +27,32 @@ int getDateDifference(time_t laterDate, time_t earlierDate) {
   return gmtime(&d)->tm_yday;
 }
 
+void printBlocks(int count, char filler, int inclusive) {
+  if (inclusive) {
+    count++;
+  }
+
+  if (count > 0) {
+    for (int i = 0; i < count; ++i) {
+      for (int j = 0; j < BLOCK_WIDTH; ++j) {
+	printf("%c", filler);
+      }
+      printf("|");
+    }
+  }
+}
+
 void printTask(struct Task* task, time_t chartStartDate, time_t chartEndDate) {
   printf("| %-19s|", task->title);
   int initialDateDifference = getDateDifference(task->start_date, chartStartDate);
-  if (initialDateDifference > 0) {
-    for (int i = 0; i < initialDateDifference; ++i) {
-      printf("%7s|", " ");
-    }
-  }
-
+  printBlocks(initialDateDifference, ' ', 0);
+  
   time_t earlierEndDate = (task->end_date <= chartEndDate)? task->end_date : chartEndDate;
   int taskDateDifference = getDateDifference(earlierEndDate, task->start_date);
-  if (taskDateDifference > 0) {
-    for (int i = 0; i <= taskDateDifference; ++i) {
-      printf("///////|");
-    }
-  }
-
+  printBlocks(taskDateDifference, '/', 1);
+  
   int endDateDifference = getDateDifference(chartEndDate, task->end_date);
-  if (endDateDifference > 0) {
-    for (int i = 0; i <= endDateDifference; ++i) {
-      printf("%7s|", " ");
-    }
-  }
+  printBlocks(endDateDifference, ' ', 1);
 
   printf("\n");
   //                 |03/22|03/23|03/24|03/25| 
@@ -69,17 +82,17 @@ int main(int argc, char** argv) {
   time_t taskStartTime = 1648175364;
   time_t chartEndTime = 1648866564;
   
-  printf("chart start: %s\n", asctime(gmtime(&chartStartTime)));
+  /*  printf("chart start: %s\n", asctime(gmtime(&chartStartTime)));
   printf("task start: %s\n", asctime(gmtime(&taskStartTime)));
   printf("task end: %s\n", asctime(gmtime(&taskEndTime)));
-  printf("chart end: %s\n", asctime(gmtime(&chartEndTime)));
+  printf("chart end: %s\n", asctime(gmtime(&chartEndTime)));*/
+
   printDates(chartStartTime, chartEndTime);
   struct Task firstTask;
-  firstTask.title = "first fecking task";
+  firstTask.title = "first actual task";
   firstTask.start_date = taskStartTime;
   firstTask.end_date = taskEndTime;
   
   printTask(&firstTask, chartStartTime, chartEndTime);
-  printf("hi, sup\n");
   return 0;
 }
