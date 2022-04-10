@@ -11,3 +11,7 @@ OBJ = printer.o main.o
 gantteater: $(OBJ)
 	mkdir -p out
 	$(CC) -o out/$@ $^ $(CFLAGS)
+
+clean:
+	rm -rf *.o *~ out
+
