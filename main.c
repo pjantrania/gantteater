@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include "chart.h"
 #include "task.h"
 #include "printer.h"
 
