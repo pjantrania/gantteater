@@ -2,8 +2,8 @@
 
 CC=cc
 CFLAGS=-I.
-DEPS = printer.h
-OBJ = printer.o main.o
+DEPS = printer.h chart.h
+OBJ = printer.o main.o chart.o
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)

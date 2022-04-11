@@ -20,8 +20,8 @@ void updateSettings(time_t* chartStartTime, time_t* chartEndTime) {
   *chartEndTime = newChartEndTime;
 }
 
-void addTask(struct Task* tasks, int currentTaskCount) {
-  struct Task* nextTask = &tasks[currentTaskCount];
+struct Task* addTask() {
+  struct Task* nextTask = (struct Task*)calloc(1, sizeof(struct Task));
   printf("\n> Task Title: ");
   char taskTitle[21];
   scanf("%20s", taskTitle);
@@ -36,6 +36,7 @@ void addTask(struct Task* tasks, int currentTaskCount) {
   int newTaskEndTime;
   scanf("%d", &newTaskEndTime);
   nextTask->end_date = newTaskEndTime;
+  return nextTask;
 }
 
 int main(int argc, char** argv) {
@@ -45,21 +46,24 @@ int main(int argc, char** argv) {
   time_t taskEndTime  = 1648607369;
   time_t taskStartTime = 1648175364;
   time_t chartEndTime = 1648866564;
-  
-  struct Task* tasks = (struct Task *) calloc(TASK_COUNT, sizeof(struct Task));
-  strcpy(tasks[0].title, "first actual task");
-  tasks[0].start_date = taskStartTime;
-  tasks[0].end_date = taskEndTime;
+
+  struct Chart* chart = createEmptyChart(chartStartTime, chartEndTime);
+  struct Task firstTask;
+  strcpy(firstTask.title, "first actual task");
+  firstTask.start_date = taskStartTime;
+  firstTask.end_date = taskEndTime;
+  addChartTask(chart, &firstTask);
 
   // repl process
   while(1) {
     // show current gantt
-    printDates(chartStartTime, chartEndTime);
+    printDates(chart->startDate, chart->endDate);
     int currentTaskCount = 0;
-    for(int i = 0; i < TASK_COUNT; i++) {
-      if (strlen(tasks[i].title) != 0) {
+    for(int i = 0; i < chart->taskCount; i++) {
+      struct Task* currentTask = &chart->tasks[i];
+      if (strlen(currentTask->title) != 0) {
 	++currentTaskCount;
-	printTask(&tasks[i], chartStartTime, chartEndTime);
+	printTask(currentTask, chartStartTime, chartEndTime);
       }
     }
 
@@ -79,14 +83,17 @@ int main(int argc, char** argv) {
     int settings = strcmp(command, "settings");
     if (settings == 0) {
       updateSettings(&chartStartTime, &chartEndTime);
+      updateChartTimes(chart, chartStartTime, chartEndTime);
     }
 
     int addTaskInput = strcmp(command, "add-task");
     if (addTaskInput == 0) {
-      addTask(tasks, currentTaskCount);
+      struct Task* newTask = addTask();
+      addChartTask(chart, newTask);
+      free(newTask);
     }
   }
 
-  free(tasks);
+  destroyChart(chart);
   return 0;
 }

@@ -37,6 +37,7 @@ void addChartTask(struct Chart* chart, struct Task* task) {
   }
 
   memcpy(&chart->tasks[chart->taskCount++], task, sizeof(struct Task));
+
   return;
 }
 
